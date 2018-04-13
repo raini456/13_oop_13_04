@@ -1,41 +1,41 @@
 <?php
 require_once './config.php';
 require_once './classes/DbClass.php';
-require_once './classes/DbClassExt.php';
 require_once './classes/FilterForm.php';
-
+require_once './classes/dbClassExt.php';
 $db = new DbClassExt('mysql:host=' . HOST . ';dbname=' . DB, USER, PASSWORD);
 
 //Filter field_name 
 $f = new FilterForm();
 $f->setFilter('field_name', 513, 'name');
-$dataName = $f->filter(INPUT_POST); //$dataName['name'] = 'Grand Hotel Adlon';
-//Hotelname eintragen
+$dataName = $f->filter(0);//$dataName['name'] = 'Grand Hotel Adlon';
+//Dateiname holen
 if (count($dataName) === 1) {
  $db->setTable('tb_hotels');
- $lastId = $db->insert($dataName); //$dataName['name'] = 'Grand Hotel Adlon';
+ $lastId = $db->insert($dataName);//$dataName['name'] = 'Grand Hotel Adlon';
 }
 
-if ($lastId > 0) {//Wenn Id von Hotel Eintrag größer 0
- $f2 = new FilterForm();
- $f2->setFilter('field_services', [FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY], 'service_id');
- $dataFormServices = $f2->filter(0); //$dataFormServices = ['service_id' => [1,2,4]]
- $dataFormServices['hotel_id'] = [];
- for ($i = 0; $i < count($dataFormServices['service_id']); $i++) {
-  $dataFormServices['hotel_id'][] = $lastId;
+//services eintragen
+$f2 = new FilterForm();
+$f2->setFilter('field_services',[FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY],
+        'service_id');
+$dataFormServices = $f2->filter(0);
+/*
+ * $dataFormServices['service_id'] = [1,2,4]
+ */
+
+$db->setTable('tb_hotelservice');
+$data = [];
+foreach ($dataFormServices as $colName => $values) {
+ for ($i = 0; $i < count($values); $i++) {//[1,2,4]
+  $data[$colName] = $values[$i];//$data['service_id] = 1
+  $data['hotel_id'] = $lastId;//$data['hotel_id'] = 1
+  $db->insert($data);
  }
- $db->setTable('tb_hotelservice');
- $db->insertArray($dataFormServices);
 }
+$db->insertArray($data);
 
 
-
-
-
-
-
-
-//services filtern
 //inserts mit assoziativen Arrays
 //$data = [];
 ////     column = wert
@@ -47,6 +47,8 @@ if ($lastId > 0) {//Wenn Id von Hotel Eintrag größer 0
 //$data = [];
 //$data['service_id'] = [2,5];
 ////$db->insertArray($data);
+
+
 //$data = [
 //    'hotel_id' => [1,1,1],
 //    'service_id' => [1,2,4]
@@ -100,7 +102,7 @@ if ($lastId > 0) {//Wenn Id von Hotel Eintrag größer 0
   <hr>
   <pre>
    <?php
-//   var_dump($dataFormServices);
+   var_dump($lastId);
    ?>
   </pre>
  </body>
