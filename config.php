@@ -3,9 +3,8 @@
 define('HOST','localhost');
 define('DB','db_hotels');
 define('USER','db_hotels');
-define('PASSWORD','iCwwAgaL216iO3lD');
+define('PASSWORD','6sDk20hWvlRg1a3h');
 
-define('SALT','3zj4t23j4t8dfasdz8fa7');
 
 
 /***
